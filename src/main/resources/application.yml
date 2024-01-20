@@ -1,0 +1,10 @@
+server:
+  port: 8080
+spring:
+  application:
+    name:  credit-account-management
+  profiles:
+    active: prod
+springdoc:
+  swagger-ui:
+    path: /swagger-ui

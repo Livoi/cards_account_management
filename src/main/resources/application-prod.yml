@@ -1,0 +1,49 @@
+server:
+  port: 8080
+debug: false
+spring:
+  application:
+    name: credit-account-management
+  config:
+    activate:
+      on-profile: prod
+  freemarker:
+    template-loader-path:
+      - classpath:/templates
+    suffix: ftl
+    charset: UTF-8
+    check-template-location: false
+    expose-spring-macro-helpers: true
+
+  # POSTGRESQL DATASOURCE configuration
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      # HikariCP connection pool settings
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 60000
+      max-lifetime: 30000
+      connection-timeout: 60000
+      pool-name: HikariConnectionPoolPostgreSQL
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  api-username: $(MTN_USERNAME:mtn}
+  api-password: $(MTN_PASSWORD:kcbug01}
+  timeout: ${TIMEOUT:60000}
+  is-mock: ${ISMOCK:false}
+  msisdn-position-resources: ${MSISDN_POSITION_RESOURCES:1}
+  cust-info-post-uri: ${CUST_INFO_POST_URI:/api/v1/}
+  cust-info-post-path: ${CUST_INFO_POST_PATH:customerdetails/}
