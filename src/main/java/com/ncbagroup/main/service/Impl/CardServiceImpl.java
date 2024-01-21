@@ -10,13 +10,18 @@ import com.ncbagroup.main.repository.AccountRepository;
 import com.ncbagroup.main.repository.CardRepository;
 import com.ncbagroup.main.service.CardServiceInterface;
 import com.ncbagroup.main.util.Utils;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +44,11 @@ public class CardServiceImpl implements CardServiceInterface {
     @Transactional
     public ResponseEntity<?> CreateNewCard(Card card) {
         try {
+            JSONObject incomingRequestJSON = new JSONObject(card);
+            logger.info("-------------------------------------------------------------------");
+            logger.info("Incoming request: \n{}", incomingRequestJSON);
+            logger.info("-------------------------------------------------------------------");
+
             AccountEntity accountEntity = accountRepository.findById(card.getAccountId()).orElse(null);
 
             if (accountEntity == null) {
@@ -98,14 +108,44 @@ public class CardServiceImpl implements CardServiceInterface {
         return cardDTO;
     }
 
+
+
     @Override
     public ResponseEntity<?> GetCard(String cardId) {
         return null;
     }
 
     @Override
-    public ResponseEntity<?> UpdateCard(Card card) {
-        return null;
+    public ResponseEntity<?> UpdateCard(Long cardId, Card card) {
+
+        try {
+            Optional<CardEntity> existingCard = cardRepository.findById(cardId);
+            if (existingCard.isPresent()) {
+                CardEntity cardEntity = existingCard.get();
+                cardEntity.setAlias(card.getAlias());
+                cardEntity = cardRepository.save(cardEntity);
+
+                Card cardResp = utils.convertEntityToDto(cardEntity, Card.class);
+
+                cardResp.setAccountId(cardEntity.getAccount().getId());
+
+                ResponseEntity<?> responseEntity = ResponseEntity.ok().body(cardResp);
+
+                utils.logResponseEntity(responseEntity, "update card with id: "+ cardId, false);
+
+                return responseEntity;
+            } else {
+                // If resource is not found, return a 404 response with a JSON body
+                Map<String, Object> responseBody = new HashMap<>();
+                responseBody.put("id", cardId);
+                responseBody.put("status", "Not Found");
+                ResponseEntity<?> responseEntity = ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+                utils.logResponseEntity(responseEntity, "Failed to update card with id: "+ cardId , true);
+                return responseEntity;
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -114,7 +154,14 @@ public class CardServiceImpl implements CardServiceInterface {
     }
 
     @Override
-    public ResponseEntity<?> GetAllCardsAssociatedWithAccount(String account) {
-        return null;
+    public ResponseEntity<?> GetAllCardsAssociatedWithAccount(Long accountId) {
+
+        List<CardEntity> cards = cardRepository.findByAccountId(accountId);
+
+        List<Card> cardList = utils.convertCardEntityListToDTOList(cards);
+
+        ResponseEntity<?> responseEntity = ResponseEntity.ok().body(cardList);
+
+        return responseEntity;
     }
 }

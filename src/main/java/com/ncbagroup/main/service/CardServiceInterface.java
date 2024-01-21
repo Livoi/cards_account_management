@@ -9,7 +9,7 @@ public interface CardServiceInterface {
 
     ResponseEntity<?> CreateNewCard(Card card);
     ResponseEntity<?> GetCard(String cardId);
-    ResponseEntity<?> UpdateCard(Card card);
+    ResponseEntity<?> UpdateCard(Long cardId, Card card);
     ResponseEntity<?> DeleteCard(String cardId);
-    ResponseEntity<?> GetAllCardsAssociatedWithAccount(String account);
+    ResponseEntity<?> GetAllCardsAssociatedWithAccount(Long account);
 }

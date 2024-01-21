@@ -34,36 +34,13 @@ public class AccountServiceImpl implements AccountServiceInterface {
         this.cardServiceInterface = cardServiceInterface;
     }
     @Override
-    public ResponseEntity<String> CreateAccountWithCards(Account account, List<Card> cardList) {
-        try {
-            // Save the account
-            if(CreateAccount(account).getStatusCode() == HttpStatus.OK){
-                String savedAccount = (String) CreateAccount(account).getBody();
-                Account accountResp = (Account) utils.setJsonStringToObject(savedAccount,
-                        Account.class);
-
-                // Associate cards with the account
-                for (Card card : cardList) {
-                    card.setAccountId(accountResp.getId());
-                    cardServiceInterface.CreateNewCard(card);
-                }
-
-                return new ResponseEntity<>("Account with cards created successfully", HttpStatus.CREATED);
-            }
-
-            // Handle exceptions or log errors
-            return new ResponseEntity<>("Failed to create account with cards", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        } catch (Exception e) {
-            // Handle exceptions or log errors
-            return new ResponseEntity<>("Failed to create account with cards", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @Override
     public ResponseEntity<?> CreateAccount(Account account) {
         AccountEntity savedAccount = null;
         try {
+            JSONObject incomingRequestJSON = new JSONObject(account);
+            logger.info("-------------------------------------------------------------------");
+            logger.info("Incoming request: \n{}", incomingRequestJSON);
+            logger.info("-------------------------------------------------------------------");
             Account accountResp = GetAccountByClientId(account.getClientId());
             if(accountResp == null){
 
@@ -97,6 +74,7 @@ public class AccountServiceImpl implements AccountServiceInterface {
     @Override
     public Account GetAccount(Long accountId) {
         try {
+
             AccountEntity accountEntity = accountRepository.findTopById(accountId);
 
             if (accountEntity != null) {
@@ -147,23 +125,6 @@ public class AccountServiceImpl implements AccountServiceInterface {
             logger.error("Error fetching account : {}", e.getMessage());
             logger.error("-------------------------------------------------------------------");
             return null;
-        }
-    }
-
-    @Override
-    public ResponseEntity<?> GetAllAccounts() {
-        try {
-            List<AccountEntity> accountEntityList = accountRepository.findAll();
-
-            List<Account> accountList =  utils.convertEntityListToDTOList(accountEntityList);
-
-            logger.info("-------------------------------------------------------------------");
-            logger.info("Returned records: {}", accountList.size());
-            logger.info("-------------------------------------------------------------------");
-
-            return ResponseEntity.ok().body(accountList);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 

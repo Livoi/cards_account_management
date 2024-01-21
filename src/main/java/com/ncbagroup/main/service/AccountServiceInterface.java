@@ -9,10 +9,9 @@ import java.util.List;
 
 @Service
 public interface AccountServiceInterface {
-    ResponseEntity<String> CreateAccountWithCards(Account account, List<Card> cardList);
     ResponseEntity<?> CreateAccount(Account account);
     Account GetAccount(Long accountId);
-
     Account GetAccountByClientId(String clientId);
-    ResponseEntity<?> GetAllAccounts();
+
+
 }

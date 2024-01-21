@@ -14,7 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -49,10 +52,7 @@ public class CardController {
             return ResponseEntity.badRequest().body("Invalid request: Account does not exist.");
         }
 
-        JSONObject incomingRequestJSON = new JSONObject(card);
-        logger.info("-------------------------------------------------------------------");
-        logger.info("Incoming request: \n{}", incomingRequestJSON);
-        logger.info("-------------------------------------------------------------------");
+
 
         return cardServiceInterface.CreateNewCard(card);
 
@@ -77,34 +77,32 @@ public class CardController {
     }
 
     // Update a card by ID
-//    @PutMapping("/{cardId}")
-//    public ResponseEntity<Card> updateCard(@PathVariable String cardId, @RequestBody Card updatedCard) {
-//        Optional<Card> existingCard = cardRepository.findById(cardId);
-//        if (existingCard.isPresent()) {
-//            Card card = existingCard.get();
-//            card.setAlias(updatedCard.getAlias());
-//            cardRepository.save(card);
-//            return new ResponseEntity<>(card, HttpStatus.OK);
-//        } else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
+    @PutMapping("/card/{cardId}")
+    public ResponseEntity<?> updateCard(@PathVariable Long cardId, @RequestBody Card updatedCard) {
+
+        return cardServiceInterface.UpdateCard(cardId,updatedCard);
+
+    }
 
     // Delete a card by ID
-    @DeleteMapping("/{cardId}")
-    public ResponseEntity<Void> deleteCard(@PathVariable String cardId) {
+    @DeleteMapping("/card/{cardId}")
+    public ResponseEntity<?> deleteCard(@PathVariable Long cardId) {
         if (cardRepository.existsById(cardId)) {
             cardRepository.deleteById(cardId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            // If resource is not found, return a 404 response with a JSON body
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("id", cardId);
+            responseBody.put("status", "Not Found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
         }
     }
 
     // Get all cards associated with an account
     @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<CardEntity>> getCardsByAccountId(@PathVariable String accountId) {
-        List<CardEntity> cards = cardRepository.findByAccountId(accountId);
-        return new ResponseEntity<>(cards, HttpStatus.OK);
+    public ResponseEntity<?> getCardsByAccountId(@PathVariable Long accountId) {
+
+        return cardServiceInterface.GetAllCardsAssociatedWithAccount(accountId);
     }
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ncbagroup.main.entity.AccountEntity;
+import com.ncbagroup.main.entity.CardEntity;
 import com.ncbagroup.main.model.request.Account;
 import com.ncbagroup.main.model.request.Card;
 import org.modelmapper.ModelMapper;
@@ -14,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,31 +31,6 @@ public class Utils {
         this.modelMapper = modelMapper;
         this.objectMapper = objectMapper;
     }
-
-    private String generateRandomCharacters(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        StringBuilder randomChars = new StringBuilder();
-
-        Random random = new Random();
-        for (int i = 0; i < length; i++) {
-            int index = random.nextInt(characters.length());
-            randomChars.append(characters.charAt(index));
-        }
-
-        return randomChars.toString();
-    }
-
-    public String timestamp() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        return now.format(formatter);
-    }
-
-    public String UniqueIdGenerator() {
-        String randomChars = generateRandomCharacters(3).toUpperCase(); // Generate 3 random characters
-        return randomChars + timestamp();
-    }
-
 
     public Object setJsonStringToObject(String content, Class<?> object) {
         try {
@@ -116,18 +90,11 @@ public class Utils {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(map);
     }
-
-    public List<Account> convertEntityListToDTOList(List<AccountEntity> entityList) {
+    public List<Card> convertCardEntityListToDTOList(List<CardEntity> entityList) {
         return entityList.stream()
-                .map(accountEntity -> modelMapper.map(accountEntity, Account.class))
+                .map(cardEntity -> modelMapper.map(cardEntity, Card.class))
                 .collect(Collectors.toList());
     }
-
-    public String convertListToJson(List<Account> accountList) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(accountList);
-    }
-
 
     public <D, E> D convertEntityToDto(E entity, Class<D> dtoClass) {
         ObjectMapper objectMapper = new ObjectMapper();

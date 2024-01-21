@@ -47,3 +47,5 @@ app:
   msisdn-position-resources: ${MSISDN_POSITION_RESOURCES:1}
   cust-info-post-uri: ${CUST_INFO_POST_URI:/api/v1/}
   cust-info-post-path: ${CUST_INFO_POST_PATH:customerdetails/}
+
+

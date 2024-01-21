@@ -5,6 +5,7 @@ spring:
     name:  credit-account-management
   profiles:
     active: prod
-springdoc:
-  swagger-ui:
-    path: /swagger-ui
+springfox:
+  documentation:
+    swagger-ui:
+      path: /swagger-ui/index.html
